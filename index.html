@@ -2,248 +2,191 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nifty 50 - 3-Month Trend & MACD (3,5,5)</title>
-  <!-- Load Plotly.js -->
-  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Nifty 50 | TradingView Terminal</title>
   <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    :root {
+      --bg-primary: #0b0f19;
+      --card-bg: rgba(22, 30, 49, 0.75);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --accent-blue: #38bdf8;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
       margin: 0;
-      padding: 20px;
-      background-color: #0f172a;
-      color: #e2e8f0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
     }
-    .container {
-      max-width: 1200px;
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 12px;
+    }
+
+    .dashboard-container {
+      max-width: 1400px;
+      width: 100%;
       margin: 0 auto;
-      background: #1e293b;
-      border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      gap: 12px;
     }
+
     header {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 12px 18px;
       display: flex;
       justify-content: space-between;
-      align-items: baseline;
-      border-bottom: 1px solid #334155;
-      padding-bottom: 16px;
-      margin-bottom: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
     }
-    h1 {
-      margin: 0;
-      font-size: 1.5rem;
-      color: #38bdf8;
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
-    .badge {
+
+    .ticker-badge {
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: #fff;
+      font-weight: 700;
       font-size: 0.85rem;
-      background-color: #334155;
+      padding: 6px 12px;
+      border-radius: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+    }
+
+    .metrics-bar {
+      display: flex;
+      gap: 14px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .pill {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
       padding: 4px 10px;
       border-radius: 6px;
-      color: #94a3b8;
     }
-    #chart {
+
+    .pill strong {
+      color: var(--accent-blue);
+    }
+
+    .chart-wrapper {
+      position: relative;
+      flex: 1;
+      min-height: calc(100vh - 120px);
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .tradingview-widget-container {
+      height: 100%;
       width: 100%;
-      height: 650px;
+    }
+
+    .tradingview-widget-container__widget {
+      height: 100%;
+      width: 100%;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 8px;
+      }
+      .chart-wrapper {
+        min-height: 82vh;
+      }
+      .brand-title {
+        font-size: 1rem;
+      }
+      .metrics-bar {
+        width: 100%;
+        justify-content: flex-start;
+      }
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
+  <div class="dashboard-container">
     <header>
-      <div>
-        <h1>Nifty 50 Index (Past 3 Months)</h1>
-        <span style="font-size: 0.9rem; color: #94a3b8;">Timeframe: <strong>Daily (D1)</strong> | Indicator: <strong>MACD (3, 5, 5)</strong></span>
+      <div class="brand-section">
+        <span class="ticker-badge">NSE:NIFTY</span>
+        <span class="brand-title">Nifty 50 Index Terminal</span>
       </div>
-      <div class="badge">Interactive Chart (Pan & Zoom Enabled)</div>
+      <div class="metrics-bar">
+        <span class="pill">Timeframe: <strong>1 Day (D)</strong></span>
+        <span class="pill">Setup: <strong>MACD (3, 5, 5)</strong></span>
+      </div>
     </header>
 
-    <div id="chart"></div>
+    <div class="chart-wrapper">
+      <!-- TradingView Widget BEGIN -->
+      <div class="tradingview-widget-container" id="tradingview_chart_container">
+        <div class="tradingview-widget-container__widget" id="tradingview_widget"></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+        <script type="text/javascript">
+          new TradingView.widget({
+            "autosize": true,
+            "symbol": "NSE:NIFTY",
+            "interval": "D",
+            "timezone": "Asia/Kolkata",
+            "theme": "dark",
+            "style": "1", // 1 = Candlesticks
+            "locale": "en",
+            "enable_publishing": false,
+            "allow_symbol_change": true,
+            "save_image": true,
+            "container_id": "tradingview_widget",
+            "studies": [
+              "MACD@tv-basicstudies"
+            ],
+            "overrides": {
+              "mainSeriesProperties.candleStyle.upColor": "#22c55e",
+              "mainSeriesProperties.candleStyle.downColor": "#ef4444",
+              "mainSeriesProperties.candleStyle.borderUpColor": "#22c55e",
+              "mainSeriesProperties.candleStyle.borderDownColor": "#ef4444",
+              "mainSeriesProperties.candleStyle.wickUpColor": "#22c55e",
+              "mainSeriesProperties.candleStyle.wickDownColor": "#ef4444"
+            },
+            "studies_overrides": {
+              "macd.fastLength": 3,
+              "macd.slowLength": 5,
+              "macd.signalLength": 5
+            }
+          });
+        </script>
+      </div>
+      <!-- TradingView Widget END -->
+    </div>
   </div>
 
-  <script>
-    // Daily 3-Month Reconstructed Dataset (June 17 - September 11, 2026)
-    const rawData = [
-      { date: "2026-06-17", close: 24085.70 },
-      { date: "2026-06-18", close: 24050.40 },
-      { date: "2026-06-19", close: 24010.15 },
-      { date: "2026-06-22", close: 23980.60 },
-      { date: "2026-06-23", close: 23965.80 },
-      { date: "2026-06-24", close: 23990.20 },
-      { date: "2026-06-25", close: 23940.10 },
-      { date: "2026-06-26", close: 23910.00 },
-      { date: "2026-06-29", close: 23880.50 },
-      { date: "2026-06-30", close: 23865.75 },
-      { date: "2026-07-01", close: 23890.30 },
-      { date: "2026-07-02", close: 23945.10 },
-      { date: "2026-07-03", close: 24010.50 },
-      { date: "2026-07-06", close: 24070.80 },
-      { date: "2026-07-07", close: 24105.20 },
-      { date: "2026-07-08", close: 24095.40 },
-      { date: "2026-07-09", close: 24110.60 },
-      { date: "2026-07-10", close: 24120.50 },
-      { date: "2026-07-13", close: 24155.00 },
-      { date: "2026-07-14", close: 24190.25 },
-      { date: "2026-07-15", close: 24210.80 },
-      { date: "2026-07-16", close: 24235.00 },
-      { date: "2026-07-17", close: 24250.60 },
-      { date: "2026-07-20", close: 24260.10 },
-      { date: "2026-07-21", close: 24265.00 },
-      { date: "2026-07-22", close: 24285.30 },
-      { date: "2026-07-23", close: 24300.90 },
-      { date: "2026-07-24", close: 24320.40 },
-      { date: "2026-07-27", close: 24345.10 },
-      { date: "2026-07-28", close: 24360.50 },
-      { date: "2026-07-29", close: 24370.20 },
-      { date: "2026-07-30", close: 24378.00 },
-      { date: "2026-07-31", close: 24383.60 },
-      { date: "2026-08-03", close: 24774.30 }, // Peak
-      { date: "2026-08-04", close: 24710.10 },
-      { date: "2026-08-05", close: 24680.40 },
-      { date: "2026-08-06", close: 24640.20 },
-      { date: "2026-08-07", close: 24610.50 },
-      { date: "2026-08-10", close: 24590.00 },
-      { date: "2026-08-11", close: 24575.80 },
-      { date: "2026-08-12", close: 24560.20 },
-      { date: "2026-08-13", close: 24550.60 },
-      { date: "2026-08-14", close: 24540.80 },
-      { date: "2026-08-17", close: 24490.10 },
-      { date: "2026-08-18", close: 24440.50 },
-      { date: "2026-08-19", close: 24395.20 },
-      { date: "2026-08-20", close: 24350.00 },
-      { date: "2026-08-21", close: 24315.50 },
-      { date: "2026-08-24", close: 24270.30 },
-      { date: "2026-08-25", close: 24230.10 },
-      { date: "2026-08-26", close: 24190.80 },
-      { date: "2026-08-27", close: 24150.40 },
-      { date: "2026-08-28", close: 24110.00 },
-      { date: "2026-08-31", close: 24080.40 },
-      { date: "2026-09-01", close: 24040.20 },
-      { date: "2026-09-02", close: 23995.60 },
-      { date: "2026-09-03", close: 23950.10 },
-      { date: "2026-09-04", close: 23897.70 },
-      { date: "2026-09-07", close: 23780.40 },
-      { date: "2026-09-08", close: 23650.00 },
-      { date: "2026-09-09", close: 23540.20 },
-      { date: "2026-09-10", close: 23460.50 },
-      { date: "2026-09-11", close: 23398.10 }
-    ];
-
-    // Helper: Calculate EMA
-    function calculateEMA(data, span) {
-      const k = 2 / (span + 1);
-      const ema = [data[0]];
-      for (let i = 1; i < data.length; i++) {
-        ema.push(data[i] * k + ema[i - 1] * (1 - k));
-      }
-      return ema;
-    }
-
-    const dates = rawData.map(d => d.date);
-    const closes = rawData.map(d => d.close);
-
-    // MACD Calculations: Fast=3, Slow=5, Signal=5
-    const emaFast = calculateEMA(closes, 3);
-    const emaSlow = calculateEMA(closes, 5);
-    const macdLine = emaFast.map((f, i) => f - emaSlow[i]);
-    const signalLine = calculateEMA(macdLine, 5);
-    const histogram = macdLine.map((m, i) => m - signalLine[i]);
-
-    // Traces
-    const priceTrace = {
-      x: dates,
-      y: closes,
-      type: 'scatter',
-      mode: 'lines+markers',
-      name: 'Nifty 50 Close',
-      line: { color: '#38bdf8', width: 2.5 },
-      marker: { size: 4 },
-      xaxis: 'x',
-      yaxis: 'y'
-    };
-
-    const macdTrace = {
-      x: dates,
-      y: macdLine,
-      type: 'scatter',
-      mode: 'lines',
-      name: 'MACD (3,5)',
-      line: { color: '#60a5fa', width: 2 },
-      xaxis: 'x',
-      yaxis: 'y2'
-    };
-
-    const signalTrace = {
-      x: dates,
-      y: signalLine,
-      type: 'scatter',
-      mode: 'lines',
-      name: 'Signal (5)',
-      line: { color: '#f97316', width: 2, dash: 'dot' },
-      xaxis: 'x',
-      yaxis: 'y2'
-    };
-
-    const histColors = histogram.map(val => val >= 0 ? '#22c55e' : '#ef4444');
-    const histTrace = {
-      x: dates,
-      y: histogram,
-      type: 'bar',
-      name: 'Histogram',
-      marker: { color: histColors },
-      opacity: 0.6,
-      xaxis: 'x',
-      yaxis: 'y2'
-    };
-
-    const layout = {
-      paper_bgcolor: '#1e293b',
-      plot_bgcolor: '#1e293b',
-      showlegend: true,
-      legend: { orientation: 'h', x: 0, y: 1.1, font: { color: '#94a3b8' } },
-      hovermode: 'x unified',
-      margin: { l: 60, r: 30, t: 30, b: 40 },
-      xaxis: {
-        gridcolor: '#334155',
-        tickfont: { color: '#94a3b8' },
-        showspikes: true,
-        spikemode: 'across',
-        spikesnap: 'cursor',
-        spikethickness: 1,
-        spikecolor: '#64748b'
-      },
-      yaxis: {
-        title: { text: 'Index Level', font: { color: '#94a3b8' } },
-        gridcolor: '#334155',
-        tickfont: { color: '#94a3b8' },
-        domain: [0.38, 1.0]
-      },
-      yaxis2: {
-        title: { text: 'MACD Value', font: { color: '#94a3b8' } },
-        gridcolor: '#334155',
-        tickfont: { color: '#94a3b8' },
-        domain: [0.0, 0.28],
-        zerolinecolor: '#64748b'
-      },
-      annotations: [
-        {
-          x: "2026-08-03",
-          y: 24774.30,
-          xref: 'x',
-          yref: 'y',
-          text: '3-Month Peak: 24,774.30',
-          showarrow: true,
-          arrowhead: 2,
-          arrowcolor: '#22c55e',
-          font: { color: '#22c55e', size: 11 },
-          bgcolor: '#0f172a',
-          bordercolor: '#22c55e'
-        }
-      ]
-    };
-
-    Plotly.newPlot('chart', [priceTrace, macdTrace, signalTrace, histTrace], layout, { responsive: true });
-  </script>
 </body>
 </html>
