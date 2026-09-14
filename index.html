@@ -1,118 +1,249 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NiftyCharts - Beautiful Interactive Charts</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        
-        .container {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 40px;
-            max-width: 600px;
-            text-align: center;
-        }
-        
-        h1 {
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 2.5em;
-        }
-        
-        .subtitle {
-            color: #666;
-            font-size: 1.1em;
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }
-        
-        .cta-button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 12px 30px;
-            border: none;
-            border-radius: 5px;
-            font-size: 1em;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            margin: 10px;
-        }
-        
-        .cta-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        }
-        
-        .features {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-top: 30px;
-            text-align: left;
-        }
-        
-        .feature {
-            padding: 15px;
-            background: #f5f5f5;
-            border-radius: 5px;
-        }
-        
-        .feature h3 {
-            color: #667eea;
-            margin-bottom: 8px;
-        }
-        
-        .feature p {
-            color: #666;
-            font-size: 0.9em;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nifty 50 - 3-Month Trend & MACD (3,5,5)</title>
+  <!-- Load Plotly.js -->
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #0f172a;
+      color: #e2e8f0;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      color: #38bdf8;
+    }
+    .badge {
+      font-size: 0.85rem;
+      background-color: #334155;
+      padding: 4px 10px;
+      border-radius: 6px;
+      color: #94a3b8;
+    }
+    #chart {
+      width: 100%;
+      height: 650px;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🎨 NiftyCharts</h1>
-        <p class="subtitle">Beautiful and interactive charts for your data visualization needs</p>
-        
-        <div>
-            <button class="cta-button">Get Started</button>
-            <button class="cta-button">Documentation</button>
-        </div>
-        
-        <div class="features">
-            <div class="feature">
-                <h3>📊 Interactive</h3>
-                <p>Engage users with interactive and responsive charts</p>
-            </div>
-            <div class="feature">
-                <h3>⚡ Fast</h3>
-                <p>Optimized performance for large datasets</p>
-            </div>
-            <div class="feature">
-                <h3>🎯 Customizable</h3>
-                <p>Full control over colors, styles, and animations</p>
-            </div>
-            <div class="feature">
-                <h3>📱 Responsive</h3>
-                <p>Works perfectly on all devices and screen sizes</p>
-            </div>
-        </div>
-    </div>
+
+  <div class="container">
+    <header>
+      <div>
+        <h1>Nifty 50 Index (Past 3 Months)</h1>
+        <span style="font-size: 0.9rem; color: #94a3b8;">Timeframe: <strong>Daily (D1)</strong> | Indicator: <strong>MACD (3, 5, 5)</strong></span>
+      </div>
+      <div class="badge">Interactive Chart (Pan & Zoom Enabled)</div>
+    </header>
+
+    <div id="chart"></div>
+  </div>
+
+  <script>
+    // Daily 3-Month Reconstructed Dataset (June 17 - September 11, 2026)
+    const rawData = [
+      { date: "2026-06-17", close: 24085.70 },
+      { date: "2026-06-18", close: 24050.40 },
+      { date: "2026-06-19", close: 24010.15 },
+      { date: "2026-06-22", close: 23980.60 },
+      { date: "2026-06-23", close: 23965.80 },
+      { date: "2026-06-24", close: 23990.20 },
+      { date: "2026-06-25", close: 23940.10 },
+      { date: "2026-06-26", close: 23910.00 },
+      { date: "2026-06-29", close: 23880.50 },
+      { date: "2026-06-30", close: 23865.75 },
+      { date: "2026-07-01", close: 23890.30 },
+      { date: "2026-07-02", close: 23945.10 },
+      { date: "2026-07-03", close: 24010.50 },
+      { date: "2026-07-06", close: 24070.80 },
+      { date: "2026-07-07", close: 24105.20 },
+      { date: "2026-07-08", close: 24095.40 },
+      { date: "2026-07-09", close: 24110.60 },
+      { date: "2026-07-10", close: 24120.50 },
+      { date: "2026-07-13", close: 24155.00 },
+      { date: "2026-07-14", close: 24190.25 },
+      { date: "2026-07-15", close: 24210.80 },
+      { date: "2026-07-16", close: 24235.00 },
+      { date: "2026-07-17", close: 24250.60 },
+      { date: "2026-07-20", close: 24260.10 },
+      { date: "2026-07-21", close: 24265.00 },
+      { date: "2026-07-22", close: 24285.30 },
+      { date: "2026-07-23", close: 24300.90 },
+      { date: "2026-07-24", close: 24320.40 },
+      { date: "2026-07-27", close: 24345.10 },
+      { date: "2026-07-28", close: 24360.50 },
+      { date: "2026-07-29", close: 24370.20 },
+      { date: "2026-07-30", close: 24378.00 },
+      { date: "2026-07-31", close: 24383.60 },
+      { date: "2026-08-03", close: 24774.30 }, // Peak
+      { date: "2026-08-04", close: 24710.10 },
+      { date: "2026-08-05", close: 24680.40 },
+      { date: "2026-08-06", close: 24640.20 },
+      { date: "2026-08-07", close: 24610.50 },
+      { date: "2026-08-10", close: 24590.00 },
+      { date: "2026-08-11", close: 24575.80 },
+      { date: "2026-08-12", close: 24560.20 },
+      { date: "2026-08-13", close: 24550.60 },
+      { date: "2026-08-14", close: 24540.80 },
+      { date: "2026-08-17", close: 24490.10 },
+      { date: "2026-08-18", close: 24440.50 },
+      { date: "2026-08-19", close: 24395.20 },
+      { date: "2026-08-20", close: 24350.00 },
+      { date: "2026-08-21", close: 24315.50 },
+      { date: "2026-08-24", close: 24270.30 },
+      { date: "2026-08-25", close: 24230.10 },
+      { date: "2026-08-26", close: 24190.80 },
+      { date: "2026-08-27", close: 24150.40 },
+      { date: "2026-08-28", close: 24110.00 },
+      { date: "2026-08-31", close: 24080.40 },
+      { date: "2026-09-01", close: 24040.20 },
+      { date: "2026-09-02", close: 23995.60 },
+      { date: "2026-09-03", close: 23950.10 },
+      { date: "2026-09-04", close: 23897.70 },
+      { date: "2026-09-07", close: 23780.40 },
+      { date: "2026-09-08", close: 23650.00 },
+      { date: "2026-09-09", close: 23540.20 },
+      { date: "2026-09-10", close: 23460.50 },
+      { date: "2026-09-11", close: 23398.10 }
+    ];
+
+    // Helper: Calculate EMA
+    function calculateEMA(data, span) {
+      const k = 2 / (span + 1);
+      const ema = [data[0]];
+      for (let i = 1; i < data.length; i++) {
+        ema.push(data[i] * k + ema[i - 1] * (1 - k));
+      }
+      return ema;
+    }
+
+    const dates = rawData.map(d => d.date);
+    const closes = rawData.map(d => d.close);
+
+    // MACD Calculations: Fast=3, Slow=5, Signal=5
+    const emaFast = calculateEMA(closes, 3);
+    const emaSlow = calculateEMA(closes, 5);
+    const macdLine = emaFast.map((f, i) => f - emaSlow[i]);
+    const signalLine = calculateEMA(macdLine, 5);
+    const histogram = macdLine.map((m, i) => m - signalLine[i]);
+
+    // Traces
+    const priceTrace = {
+      x: dates,
+      y: closes,
+      type: 'scatter',
+      mode: 'lines+markers',
+      name: 'Nifty 50 Close',
+      line: { color: '#38bdf8', width: 2.5 },
+      marker: { size: 4 },
+      xaxis: 'x',
+      yaxis: 'y'
+    };
+
+    const macdTrace = {
+      x: dates,
+      y: macdLine,
+      type: 'scatter',
+      mode: 'lines',
+      name: 'MACD (3,5)',
+      line: { color: '#60a5fa', width: 2 },
+      xaxis: 'x',
+      yaxis: 'y2'
+    };
+
+    const signalTrace = {
+      x: dates,
+      y: signalLine,
+      type: 'scatter',
+      mode: 'lines',
+      name: 'Signal (5)',
+      line: { color: '#f97316', width: 2, dash: 'dot' },
+      xaxis: 'x',
+      yaxis: 'y2'
+    };
+
+    const histColors = histogram.map(val => val >= 0 ? '#22c55e' : '#ef4444');
+    const histTrace = {
+      x: dates,
+      y: histogram,
+      type: 'bar',
+      name: 'Histogram',
+      marker: { color: histColors },
+      opacity: 0.6,
+      xaxis: 'x',
+      yaxis: 'y2'
+    };
+
+    const layout = {
+      paper_bgcolor: '#1e293b',
+      plot_bgcolor: '#1e293b',
+      showlegend: true,
+      legend: { orientation: 'h', x: 0, y: 1.1, font: { color: '#94a3b8' } },
+      hovermode: 'x unified',
+      margin: { l: 60, r: 30, t: 30, b: 40 },
+      xaxis: {
+        gridcolor: '#334155',
+        tickfont: { color: '#94a3b8' },
+        showspikes: true,
+        spikemode: 'across',
+        spikesnap: 'cursor',
+        spikethickness: 1,
+        spikecolor: '#64748b'
+      },
+      yaxis: {
+        title: { text: 'Index Level', font: { color: '#94a3b8' } },
+        gridcolor: '#334155',
+        tickfont: { color: '#94a3b8' },
+        domain: [0.38, 1.0]
+      },
+      yaxis2: {
+        title: { text: 'MACD Value', font: { color: '#94a3b8' } },
+        gridcolor: '#334155',
+        tickfont: { color: '#94a3b8' },
+        domain: [0.0, 0.28],
+        zerolinecolor: '#64748b'
+      },
+      annotations: [
+        {
+          x: "2026-08-03",
+          y: 24774.30,
+          xref: 'x',
+          yref: 'y',
+          text: '3-Month Peak: 24,774.30',
+          showarrow: true,
+          arrowhead: 2,
+          arrowcolor: '#22c55e',
+          font: { color: '#22c55e', size: 11 },
+          bgcolor: '#0f172a',
+          bordercolor: '#22c55e'
+        }
+      ]
+    };
+
+    Plotly.newPlot('chart', [priceTrace, macdTrace, signalTrace, histTrace], layout, { responsive: true });
+  </script>
 </body>
 </html>
